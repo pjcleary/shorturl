@@ -1,0 +1,26 @@
+<h1>Shorten your URL</h1>
+<p>
+  Dazzle your friends with urls that are easy to email, text and tweet.
+</p>
+<p>
+  Enter a url and we'll make it shorter.
+</p>
+<%= form_with scope: :shortener, url: shortener_index_path, local: true do |form| %>
+  <% if @displayData %>
+    <div id="error_explanation">
+      <h2>Oops</h2>
+      <p>There was an error with the url you entered: <%=@displayData['shortenedValue']['error'] %></p>
+    </div>
+  <% end %>
+  <p>
+    <%= form.label :name, 'Your wicked long url:' %><br>
+    http://<%= form.text_field :longurl %>
+  </p>
+  <p>
+    <%= form.label :name, 'text your short url to (optional):' %><br>
+    <%= form.text_field :smsnumber %>
+  </p>
+  <p>
+    <%= form.submit 'make it short' %>
+  </p>
+<% end %>

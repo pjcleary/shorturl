@@ -1,0 +1,14 @@
+<h1>Your short url</h1>
+<p>
+  You entered a url of <%=@displayData['longurl'] %>.
+</p>
+<p>
+  Your short url is <%=@displayData['shortenedValue'] %>
+</p>
+<p>
+Email the short url: <%= mail_to "", "send link", subject:"check out this site", body: "Please visit this site: " + @displayData['shortenedValue'] %>
+</p>
+<p>
+  <%= link_to 'Make a new short url', new_shortener_url %>
+
+</p>

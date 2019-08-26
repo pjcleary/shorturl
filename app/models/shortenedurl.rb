@@ -4,6 +4,7 @@ require 'twilio-ruby'
 class Shortenedurl < ApplicationRecord
   @smsNumber = ''
   @longUrl = ''
+  @shortUrl = ''
   # set the longurl, which will be used in methods below
   def self.setLongUrl(longUrl)
     @longUrl = longUrl
@@ -15,42 +16,44 @@ class Shortenedurl < ApplicationRecord
   end
   #shorten the url provided by the user
   def self.shortenUrl()
+    smsResponse = '' #set a variable to hold an sms response to return to the user
     # remove an http or https prefix if provided by user
     self.removeHttp
-    # check to see if the url is already in the database
-    # if it is, retrieve it
-    # if it is not, enter it
-    checkUrlEntry = Shortenedurl.find_or_create_by(longurl: @longUrl)
-    # if the query found that the url is already in the database, just return the short url that was already generated
-    if (checkUrlEntry.shorturlpath)
-      # get the short url value retrieved by the find or create query
-      returnValue = checkUrlEntry.shorturlpath # if there already is an entry, just return the short url
-      # prepend the SHORTURLBASE env variable, which is the first part of the url
-      returnValue.prepend(ENV["SHORTURLBASE"])
-    else
-      #if the long url is not already stored in the database, create a new short url
-      # first, check to make sure the user entered a valid url
-      if (self.checkIfUrl)
+    # first, check to make sure the user entered a valid url
+    if (self.checkIfUrl)
+      # check to see if the url is already in the database
+      # if it is, retrieve it
+      # if it is not, enter it
+      checkUrlEntry = Shortenedurl.find_or_create_by(longurl: @longUrl)
+      # if the query found that the url is already in the database, just return the short url that was already generated
+      if (checkUrlEntry.shorturlpath)
+        # get the short url value retrieved by the find or create query
+        @shortUrl = checkUrlEntry.shorturlpath # if there already is an entry, just return the short url
+        # prepend the SHORTURLBASE env variable, which is the first part of the url
+        @shortUrl.prepend(ENV["SHORTURLBASE"])
+      else
         # bijective encode the id of the database entry
         # the bijectiveEncode method has more details on this encoding
-        shortUrl = self.bijectiveEncode(checkUrlEntry.id)
+        @shortUrl = self.bijectiveEncode(checkUrlEntry.id)
         # update the database entry with the short url
-        checkUrlEntry.shorturlpath = shortUrl #set the value of the short url
+        checkUrlEntry.shorturlpath = @shortUrl #set the value of the short url
         checkUrlEntry.save # save to the database
-        returnValue = shortUrl
         # prepend the SHORTURLBASE env variable, which is the first part of the url
-        returnValue.prepend(ENV["SHORTURLBASE"])
-      else
-        # if the user did not enter a valid url, return an error
-        returnValue = Hash.new
-        returnValue['error'] = "The url you entered is not a valid url."
+        @shortUrl.prepend(ENV["SHORTURLBASE"])
       end
+      #send an SMS if we have a 10 digit number
+      if (@smsNumber.length == 10)
+        smsResponse = self.textShortUrl()
+      end
+    else
+      # if the user did not enter a valid url, return an error
+      @shortUrl = Hash.new
+      @shortUrl['error'] = "The url you entered is not a valid url."
     end
-    #send an SMS if we have a 10 digit number
-    if (@smsNumber.length == 10)
-      self.sendShortUrl(returnValue)
-    end
-    returnValue
+    returnHash = Hash.new
+    returnHash['shortenedValue'] = @shortUrl
+    returnHash['smsResponse'] = smsResponse
+    returnHash
   end
 
   # remove the https or http prefix, if entered by the user
@@ -134,7 +137,8 @@ class Shortenedurl < ApplicationRecord
 
   # send an SMS to the user if they requested one
       # code is modified from Twilio example snippet
-  def self.sendShortUrl(shortUrl)
+  def self.textShortUrl()
+    smsResponse = ''
     #set the Twilio credentials and from number
     account_sid = ENV["TWILIO_SID"]
     auth_token = ENV["TWILIO_TOKEN"]
@@ -149,15 +153,15 @@ class Shortenedurl < ApplicationRecord
       client.messages.create(
           from: from,
           to: to,
-          body: shortUrl
+          body: @shortUrl
       )
-      returnValue = 'success'
+      smsResponse = 'success'
     rescue
       # return a generic error if send fails
       # this can be made more specific in a future version
-      returnValue = 'there was an error sending the sms'
+      smsResponse = 'there was an error sending the sms'
     end
-    returnValue
+    smsResponse
   end
 
 end

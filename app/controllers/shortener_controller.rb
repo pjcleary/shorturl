@@ -49,7 +49,9 @@ class ShortenerController < ApplicationController
     # add the long url to the hash
     @displayData['longurl'] = longUrl
     # create/get the short url and add it to the hash
-    @displayData['shortenedValue'] = Shortenedurl.shortenUrl()
+    shortened = Shortenedurl.shortenUrl()
+    @displayData['shortenedValue'] = shortened['shortenedValue']
+    @displayData['smsResponse'] = shortened['smsResponse']
     # check whether the user is expecting the response in html or json
     respond_to do |format|
       format.html {

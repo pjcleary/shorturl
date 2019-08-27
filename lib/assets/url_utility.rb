@@ -45,7 +45,7 @@ module UrlUtility
   # and https://gist.github.com/zumbojo/1073996
   # using a Base 62 string is much more efficient than using a Base 10 number
   # since encoding allows for a much shorter string
-  # and Base 62 avoids using special characters that may not be work in a url
+  # and Base 62 avoids using special characters that may not work in a url
   #
   def self.bijectiveEncode(inputNumber)
     # set the string of characters available for Base 62 encoding

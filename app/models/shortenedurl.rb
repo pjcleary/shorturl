@@ -28,7 +28,6 @@ class Shortenedurl < ApplicationRecord
 
   #shorten the url provided by the user
   def self.shortenUrl()
-    smsResponse = '' #set a variable to hold an sms response to return to the user
     # remove an http or https prefix if provided by user
     @longUrl = UrlUtility.removeHttp(@longUrl)
     # first, check to make sure the user entered a valid url

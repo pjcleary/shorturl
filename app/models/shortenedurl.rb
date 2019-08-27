@@ -7,6 +7,7 @@ class Shortenedurl < ApplicationRecord
   @smsNumber = ''
   @longUrl = ''
   @shortUrl = ''
+  @smsResponse = ''
   # set the longurl, which will be used in method below
   def self.setLongUrl(longUrl)
     @longUrl = longUrl
@@ -16,6 +17,15 @@ class Shortenedurl < ApplicationRecord
     #keep only digits from the number
     @smsNumber = smsNumber.tr('^0-9', '')
   end
+  # get the short url value
+  def self.getShortUrl()
+    @shortUrl
+  end
+  # get the sms response value
+  def self.getSmsResponse()
+    @smsResponse
+  end
+
   #shorten the url provided by the user
   def self.shortenUrl()
     smsResponse = '' #set a variable to hold an sms response to return to the user
@@ -46,16 +56,12 @@ class Shortenedurl < ApplicationRecord
       end
       #send an SMS if we have a 10 digit number
       if (@smsNumber.length == 10)
-        smsResponse = MessageUtility.sendSms(@smsNumber, @shortUrl)
+        @smsResponse = MessageUtility.sendSms(@smsNumber, @shortUrl)
       end
     else
       # if the user did not enter a valid url, return an error
       @shortUrl = Hash.new
       @shortUrl['error'] = "The url you entered is not a valid url."
     end
-    returnHash = Hash.new
-    returnHash['shortenedValue'] = @shortUrl
-    returnHash['smsResponse'] = smsResponse
-    returnHash
   end
 end

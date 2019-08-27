@@ -11,7 +11,7 @@ class ShortenerController < ApplicationController
     #this displays the new view
   end
 
-  # a get request will redirect the user to the long url
+  # a get request - handled by show - will redirect the user to the long url
   def show
     begin
       # query the table to get the long url based on the value in the short url
@@ -19,9 +19,8 @@ class ShortenerController < ApplicationController
       # add http to the front of the long url
       # use http rather than https since some legacy sites are still using http
       # https sites will typically redirect from http
-      longurl = "http://" + longUrlData.longurl
-      # redirect to the long user
-      redirect_to longurl
+      longUrl = "http://" + longUrlData.longurl
+      redirect_to longUrl
     rescue
       @displayMessage = "that is not a valid short url"
     end
@@ -33,21 +32,22 @@ class ShortenerController < ApplicationController
     # check how the data is being posted
     # if the user posted from the Ruby on Rails form, the data will include the "shortener" param
     if (params[:shortener])
-      longUrl = params[:shortener][:longurl]
-      smsnumber = params[:shortener][:smsnumber]
+      longUrl = params[:shortener][:longUrl]
+      smsNumber = params[:shortener][:smsNumber]
     # if the user posted directly to the API, they will use the longurl param only
     # this makes the API easier to use
     else
-      longUrl = params[:longurl]
-      smsnumber = params[:smsnumber]
+      longUrl = params[:longUrl]
+      smsNumber = params[:smsNumber]
     end
     # set the long url
     Shortenedurl.setLongUrl(longUrl)
-    if (smsnumber)
-      Shortenedurl.setSmsNumber(smsnumber)
+    # set the SMS number, if provided
+    if (smsNumber)
+      Shortenedurl.setSmsNumber(smsNumber)
     end
     # add the long url to the hash
-    @displayData['longurl'] = longUrl
+    @displayData['longUrl'] = longUrl
     # create/get the short url and add it to the hash
     shortened = Shortenedurl.shortenUrl()
     @displayData['shortenedValue'] = shortened['shortenedValue']

@@ -13,7 +13,7 @@ class ShortenersControllerTest < ActionDispatch::IntegrationTest
   # confirm the create controller loads correctly
   test "should create shortener" do
     assert_difference('Shortenedurl.count') do
-      post shortener_index_url, params: { shortener: { longurl: 'www.house.gov' } }
+      post shortener_index_url, params: { shortener: { longUrl: 'www.house.gov' } }
     end
     assert_response 200
   end

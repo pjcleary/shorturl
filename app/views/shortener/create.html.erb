@@ -7,7 +7,7 @@
   Your short url is <%=@displayData['shortenedValue'] %>
 </p>
 
-  <% if @displayData['smsResponse'] != '' %>
+  <% if @displayData['smsResponse'] != '' and @displayData['smsResponse'] != 'success' %>
     <p>There is a message related to your request: <%=@displayData['smsResponse'] %></p>
   <% end %>
 
